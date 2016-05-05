@@ -1,6 +1,8 @@
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -8,39 +10,27 @@ import java.util.Map;
  */
 public class GainRatio
 {
-    Attribute attribute;
+   /** Attribute attribute;
+    Attribute classifier;
     double gain;
     double split;
     HashMap<String, ArrayList<Item>> set;
-    public GainRatio(Attribute gainFind, Attribute attribute, ArrayList<Item> items) //gainFind is going to be 0 (e/p)
+    ArrayList<List<String>> transactionSubsets;
+    public GainRatio(Attribute classifier, Attribute attribute, ArrayList<List<String>> transactionSubsets) //gainFind is going to be 0 (e/p)
     {
+        this.classifier = classifier;
+        this.transactionSubsets = transactionSubsets;
         this.attribute = attribute;
-        ArrayList<String> possibleAttributeValues =attribute.getPossibleValues();
         String name = attribute.name;
-        set = new HashMap<>();
-        for (String each: possibleAttributeValues)
-        {
-            set.put(each, new ArrayList<Item>());
-        }
-        for (Item i : items)
-        {
-            HashMap<String , String> itemsMap = i.getItemMap();
-            String itemValue = itemsMap.get(name);
-            if(!set.containsKey(itemValue))
-            {
-                throw new NullPointerException("Looks like something messed up with reading the data");
-            }
-            set.get(itemValue).add(i);
-        }
-        double lineSize = items.size();
-        //System.out.println("Gain find attribute: "+attribute.name);
-        //for(Item i : items)
-        //{
-        //    System.out.println(i.getItemMap());
-        //}
-        gain = entropy(gainFind, items);
 
-        for (String each: set.keySet()) //this is the basic formula for gain: H(S) - Sum(Ratios)*Entropies
+        double attributeEntropy = entropy(transactionSubsets);
+
+        for (Item i: attribute.getPossibleValues())
+        {
+
+        }
+
+       /** for (String each: set.keySet()) //this is the basic formula for gain: H(S) - Sum(Ratios)*Entropies
         {
             ArrayList<Item> subset = set.get(each);
             double subsetSize = subset.size();
@@ -64,45 +54,60 @@ public class GainRatio
         return gain/split;
     }
 
-    private double entropy(Attribute gainFind, ArrayList<Item> items) //entropy used to calculate the gain ratio
+    private double entropy(ArrayList<List<String>> lists) //entropy for an attribute or item
     {
-        ArrayList<String> possibleGainFindValues = gainFind.getPossibleValues();
-        String gainFindName = gainFind.name;
-        HashMap<String ,Integer> gainFindCount = new HashMap<>(); //To calculate entropy, you need the counts of the classifier
-        for(String s : possibleGainFindValues)
-        {
-            gainFindCount.put(s, 0); //Just create a hashmap of each of the possible classifiers (in this case e/p)
+        HashMap<String, Double > classifierCounter = new HashMap<>(); //Count the occurences of each item in the classifier
+        for(Item i : classifier.getPossibleValues()){
+                classifierCounter.put(i.name, 0.0); //there should only be two for mushroom
         }
-
-        for(Item i : items)
+        for(List<String> l : lists)
         {
-            HashMap<String, String> itemsMap = i.getItemMap();
-            String itemValue = itemsMap.get(gainFindName);
-            if(!gainFindCount.containsKey(itemValue))
-            {
-                throw new NullPointerException("Something went wrong with reading the data...");
-            }
-            gainFindCount.put(itemValue, gainFindCount.get(itemValue) + 1);
-        }
-        //System.out.println(gainFindCount);
+            if(!classifierCounter.containsKey(l.get(0)))
+                throw new NullPointerException("More classifiers than expected... tried to add "+l.get(0));
 
-        int itemSize = items.size();
+            classifierCounter.put(l.get(0), classifierCounter.get(l.get(0))+1.0);
+        }
+        if(classifierCounter.size()>2)
+            throw new NullPointerException("Too many classifiers..." + classifierCounter.size());
         double entropy = 0;
-        for(String s: possibleGainFindValues)
+        double total = 0;
+        for(Map.Entry<String, Double> me :classifierCounter.entrySet())
         {
-            double count = (double) gainFindCount.get(s);
-            if(count!=0)
-            {
-                if (count == itemSize)
-                    return 0; //Pure subset
-                double ratio = count / itemSize;
-                double logFunc = -ratio * ((Math.log(ratio) / Math.log(2))); //Info(D) = -Sum(Ratio)*Log_2(Ratio)
-                entropy += logFunc;
-            }
+            total += me.getValue();
         }
-        //System.out.println("Entropy is: "+entropy);
+        for(Map.Entry<String, Double> me :classifierCounter.entrySet())
+        {
+            entropy-=(me.getValue()/total)*(Math.log(me.getValue()/total)/Math.log(2));
+        }
         return entropy;
     }
+  /**  private double itemEntropy(ArrayList<List<String>> lists, Item item) //entropy for an attribute or item
+    {
+        HashMap<String, Double > classifierCounter = new HashMap<>(); //Count the occurences of each item in the classifier
+        for(Item i : classifier.getPossibleValues()){
+            classifierCounter.put(i.name, 0.0); //there should only be two for mushroom
+        }
+        for(List<String> l : lists)
+        {
+            if(!classifierCounter.containsKey(l.get(0)))
+                throw new NullPointerException("More classifiers than expected... tried to add "+l.get(0));
+            //if (l.contains(item.))
+            classifierCounter.put(l.get(0), classifierCounter.get(l.get(0))+1.0);
+        }
+        if(classifierCounter.size()>2)
+            throw new NullPointerException("Too many classifiers..." + classifierCounter.size());
+        double entropy = 0;
+        double total = 0;
+        for(Map.Entry<String, Double> me :classifierCounter.entrySet())
+        {
+            total += me.getValue();
+        }
+        for(Map.Entry<String, Double> me :classifierCounter.entrySet())
+        {
+            entropy-=(me.getValue()/total)*(Math.log(me.getValue()/total)/Math.log(2));
+        }
+        return entropy;
+    } **/
  /**   public double gain() //Retired code
     {
         ArrayList<Double> sumList = new ArrayList<>(); //When calculating the gainratio, you need the sums of the children entropies*the proportions

@@ -1,26 +1,26 @@
+import java.util.ArrayList;
 import java.util.HashMap;
-
-/**
- * Created by Akrylic on 3/7/2016.
- */
 public class Item //Just like how parent nodes have Attributes, child nodes have items
+    //Items are just Names with child nodes as attributes
 {
-    public static int count = 0; //The number of items in all maps
-    public int index;
-    public HashMap<String,String> itemMap;
-    public Item()
+    public String name; //name is going to be column number
+    public double entropy;
+    public String classifier;
+    public HashMap<String, Integer> classifierCount = new HashMap<>(); //need to classify the yes and no's
+    public Item(String name)
     {
-        index = count;
-        itemMap = new HashMap<String, String>();
-        count++;
+        this.name = name;
     }
-
-    public void addType(String item, String value) //Add a type
+    public void putCount(String classifier)
     {
-        itemMap.put(item, value);
+        if(classifierCount.get(classifier) == null || classifierCount.get(classifier) == 0)
+        {
+            classifierCount.put(classifier,1);
+        }
+        else
+        {
+            classifierCount.put(classifier,classifierCount.get(classifier)+1);
+        }
     }
-    public HashMap<String ,String > getItemMap()
-    {
-        return itemMap;
-    }
+    public ArrayList<Attribute> children = new ArrayList<>();
 }

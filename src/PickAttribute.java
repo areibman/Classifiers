@@ -10,7 +10,7 @@ public class PickAttribute
     double gain;
     HashMap<String, ArrayList<Item>> set;
 
-    public PickAttribute(Attribute a, ArrayList<Attribute> attributes, ArrayList<Item> items) //Given the classifier a, find the largest gain ratio from all attributes
+    /**public PickAttribute(Attribute a, ArrayList<Attribute> attributes, ArrayList<Item> items) //Given the classifier a, find the largest gain ratio from all attributes
     {
         gain = -999; //just making sure the gain ratio is in the right range...
         set = null;  //reset
@@ -28,7 +28,7 @@ public class PickAttribute
                 set = tempSet;
             }
         }
-    }
+    }**/
     public Attribute getChosenAttribute()
     {
         System.out.println("Gain ratio of attribute "+gain);
